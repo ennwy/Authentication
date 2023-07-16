@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  server:
+    container_name: "server"
+    depends_on:
+      - db
+    build:
+      context: ..
+      dockerfile: ./build/Dockerfile
+    restart: always
+    environment:
+      - HTTP_HOST=${HTTP_HOST}
+      - HTTP_PORT=${HTTP_PORT}
+
+      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_OUTPUT_PATH=${LOG_OUTPUT_PATH}
+
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+    ports:
+      - "${HTTP_PORT}:${HTTP_PORT}"
+
+  db:
+    container_name: "postgres"
+    image: postgres:15.1-alpine
+    restart: always
+    build:
+      context: ..
+      dockerfile: ./build/Dockerfile_postgres
+    volumes:
+      - ../.data/database/postgres/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - DATABASE_HOST=${DB_HOST}
+      - DATABASE_PORT=${DB_PORT}
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
